@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#f5f5f5">
+
+    <!-- Header con saldo total -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/card_background"
+        android:padding="20dp"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Administrador de Gastos"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/totalBalanceText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Saldo Total: S/ 0.00"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#2E7D32"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp" />
+
+    </LinearLayout>
+
+    <!-- Botones de acciones principales -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <Button
+            android:id="@+id/addBalanceBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="💰\nAgregar\nSaldo"
+            android:background="@drawable/button_background"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="5dp"
+            android:padding="12dp" />
+
+        <Button
+            android:id="@+id/addExpenseBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="💳\nAgregar\nGasto"
+            android:background="@drawable/button_background"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:padding="12dp" />
+
+        <Button
+            android:id="@+id/addLoanBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🏦\nAgregar\nPréstamo"
+            android:background="@drawable/button_background"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="5dp"
+            android:padding="12dp" />
+
+    </LinearLayout>
+
+    <!-- Título de próximos pagos -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Próximos Pagos"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="10dp" />
+
+    <!-- Lista de gastos próximos -->
+    <ListView
+        android:id="@+id/expensesListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/card_background"
+        android:padding="10dp"
+        android:divider="#E0E0E0"
+        android:dividerHeight="1dp" />
+
+    <!-- Botón de configuración -->
+    <Button
+        android:id="@+id/settingsBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚙️ Configuración"
+        android:background="@drawable/button_secondary"
+        android:textColor="#666666"
+        android:layout_marginTop="10dp"
+        android:padding="12dp" />
+
+</LinearLayout>

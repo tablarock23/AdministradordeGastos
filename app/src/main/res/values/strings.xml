@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Rambo Gastos</string>
+    <string name="add_balance_source">Agregar Fuente de Saldo</string>
+    <string name="add_expense">Agregar Gasto</string>
+    <string name="add_loan">Agregar Préstamo</string>
+    <string name="settings">Configuración</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+</resources>
