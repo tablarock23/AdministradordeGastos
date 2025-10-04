@@ -4,8 +4,6 @@ import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -21,9 +19,9 @@ import java.util.Calendar;
 public class AddExpenseActivity extends AppCompatActivity {
 
     private AutoCompleteTextView nameEditText;
-    private EditText amountEditText, dueDateEditText, reminderDaysEditText;
+    private EditText amountEditText, dueDateEditText, reminderDaysEditText, notificationIntervalEditText;
     private Spinner typeSpinner;
-    private TextView reminderLabel, dueDateLabel;
+    private TextView reminderLabel, dueDateLabel, intervalLabel;
     private Button saveBtn, cancelBtn;
     private DatabaseHelper dbHelper;
     private Calendar selectedDate;
@@ -47,14 +45,16 @@ public class AddExpenseActivity extends AppCompatActivity {
         amountEditText = findViewById(R.id.amountEditText);
         dueDateEditText = findViewById(R.id.dueDateEditText);
         reminderDaysEditText = findViewById(R.id.reminderDaysEditText);
+        notificationIntervalEditText = findViewById(R.id.notificationIntervalEditText);
         typeSpinner = findViewById(R.id.typeSpinner);
         reminderLabel = findViewById(R.id.reminderLabel);
         dueDateLabel = findViewById(R.id.dueDateLabel);
+        intervalLabel = findViewById(R.id.intervalLabel);
         saveBtn = findViewById(R.id.saveBtn);
         cancelBtn = findViewById(R.id.cancelBtn);
 
-        // Valor por defecto para recordatorio
-        reminderDaysEditText.setText("3");
+        reminderDaysEditText.setText("3"); // 3 minutos para pruebas
+        notificationIntervalEditText.setText("1"); // cada 1 minuto para pruebas
     }
 
     private void setupSpinner() {
@@ -63,23 +63,24 @@ public class AddExpenseActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(adapter);
 
-        // Listener para mostrar/ocultar campos según el tipo
         typeSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
                 String selectedType = parent.getItemAtPosition(position).toString();
                 if (selectedType.equals("OTROS")) {
-                    // Ocultar fecha de vencimiento y recordatorio para gastos únicos
                     dueDateEditText.setVisibility(View.GONE);
                     dueDateLabel.setVisibility(View.GONE);
                     reminderDaysEditText.setVisibility(View.GONE);
                     reminderLabel.setVisibility(View.GONE);
+                    notificationIntervalEditText.setVisibility(View.GONE);
+                    intervalLabel.setVisibility(View.GONE);
                 } else {
-                    // Mostrar para suscripciones
                     dueDateEditText.setVisibility(View.VISIBLE);
                     dueDateLabel.setVisibility(View.VISIBLE);
                     reminderDaysEditText.setVisibility(View.VISIBLE);
                     reminderLabel.setVisibility(View.VISIBLE);
+                    notificationIntervalEditText.setVisibility(View.VISIBLE);
+                    intervalLabel.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -90,7 +91,6 @@ public class AddExpenseActivity extends AppCompatActivity {
     }
 
     private void setupAutoComplete() {
-        // Sugerencias para nombres de servicios
         String[] suggestions = {
                 "Netflix", "Disney+", "Disney Plus", "Amazon Prime Video", "HBO Max",
                 "Paramount+", "Paramount Plus", "Apple TV+", "Spotify", "Apple Music",
@@ -108,7 +108,7 @@ public class AddExpenseActivity extends AppCompatActivity {
                 suggestions
         );
         nameEditText.setAdapter(autoCompleteAdapter);
-        nameEditText.setThreshold(1); // Muestra sugerencias después de 1 letra
+        nameEditText.setThreshold(1);
     }
 
     private void setupClickListeners() {
@@ -183,10 +183,10 @@ public class AddExpenseActivity extends AppCompatActivity {
         values.put(DatabaseHelper.COLUMN_RE_AMOUNT, amount);
         values.put(DatabaseHelper.COLUMN_RE_TYPE, type);
 
-        // Si es SUSCRIPCIÓN, guardar fecha y programar notificación
         if (type.equals("SUSCRIPCIÓN")) {
             String dueDateStr = dueDateEditText.getText().toString().trim();
             String reminderDaysStr = reminderDaysEditText.getText().toString().trim();
+            String intervalStr = notificationIntervalEditText.getText().toString().trim();
 
             if (dueDateStr.isEmpty()) {
                 Toast.makeText(this, "Por favor selecciona la fecha de vencimiento", Toast.LENGTH_SHORT).show();
@@ -194,22 +194,25 @@ public class AddExpenseActivity extends AppCompatActivity {
             }
 
             int reminderDays;
+            int intervalHours;
             try {
                 reminderDays = Integer.parseInt(reminderDaysStr);
+                intervalHours = Integer.parseInt(intervalStr);
             } catch (NumberFormatException e) {
-                reminderDays = 3; // Valor por defecto
+                reminderDays = 3;
+                intervalHours = 2;
             }
 
             values.put(DatabaseHelper.COLUMN_RE_DUE_DATE, selectedDate.getTimeInMillis());
             values.put(DatabaseHelper.COLUMN_RE_REMINDER_DAYS, reminderDays);
+            values.put(DatabaseHelper.COLUMN_RE_NOTIFICATION_INTERVAL_HOURS, intervalHours);
             values.put(DatabaseHelper.COLUMN_RE_IS_ACTIVE, 1);
 
             long result = db.insert(DatabaseHelper.TABLE_RECURRING_EXPENSES, null, values);
 
             if (result != -1) {
-                // Programar notificación solo para suscripciones
-                NotificationScheduler.scheduleNotification(this, (int)result, name, amount,
-                        selectedDate.getTimeInMillis(), reminderDays, "expense");
+                NotificationScheduler.scheduleMultipleNotifications(this, (int)result, name, amount,
+                        selectedDate.getTimeInMillis(), reminderDays, "expense", intervalHours);
 
                 Toast.makeText(this, "Suscripción agregada con recordatorio", Toast.LENGTH_SHORT).show();
                 finish();
@@ -217,10 +220,10 @@ public class AddExpenseActivity extends AppCompatActivity {
                 Toast.makeText(this, "Error al agregar la suscripción", Toast.LENGTH_SHORT).show();
             }
         } else {
-            // Si es OTROS (gasto único), guardar sin fecha ni notificación
             values.put(DatabaseHelper.COLUMN_RE_DUE_DATE, System.currentTimeMillis());
             values.put(DatabaseHelper.COLUMN_RE_REMINDER_DAYS, 0);
-            values.put(DatabaseHelper.COLUMN_RE_IS_ACTIVE, 0); // No activo = no se muestra en próximos pagos
+            values.put(DatabaseHelper.COLUMN_RE_NOTIFICATION_INTERVAL_HOURS, 2);
+            values.put(DatabaseHelper.COLUMN_RE_IS_ACTIVE, 0);
 
             long result = db.insert(DatabaseHelper.TABLE_RECURRING_EXPENSES, null, values);
 

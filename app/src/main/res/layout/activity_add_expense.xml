@@ -88,7 +88,7 @@
                 android:layout_marginBottom="20dp"
                 android:textSize="16sp" />
 
-            <!-- Fecha de vencimiento (solo para suscripciones) -->
+            <!-- Fecha de vencimiento -->
             <TextView
                 android:id="@+id/dueDateLabel"
                 android:layout_width="wrap_content"
@@ -111,12 +111,12 @@
                 android:textSize="16sp"
                 android:drawableEnd="@android:drawable/ic_menu_my_calendar" />
 
-            <!-- Días de recordatorio (solo para suscripciones) -->
+            <!-- Días de recordatorio -->
             <TextView
                 android:id="@+id/reminderLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Recordar con cuántos días de anticipación:"
+                android:text="⏰ Recordar con anticipación (minutos):"
                 android:textSize="16sp"
                 android:textColor="#333333"
                 android:layout_marginBottom="8dp" />
@@ -125,12 +125,42 @@
                 android:id="@+id/reminderDaysEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="3"
+                android:hint="3 minutos"
                 android:inputType="number"
                 android:background="@drawable/edittext_background"
                 android:padding="12dp"
-                android:layout_marginBottom="30dp"
+                android:layout_marginBottom="20dp"
                 android:textSize="16sp" />
+
+            <!-- Intervalo de notificaciones -->
+            <TextView
+                android:id="@+id/intervalLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔔 Notificar cada cuántos minutos:"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/notificationIntervalEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="1 minuto"
+                android:inputType="number"
+                android:background="@drawable/edittext_background"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🧪 MODO PRUEBA: Los tiempos están en MINUTOS"
+                android:textSize="12sp"
+                android:textColor="#FF6200EE"
+                android:textStyle="bold"
+                android:layout_marginBottom="30dp" />
 
             <!-- Botones -->
             <LinearLayout

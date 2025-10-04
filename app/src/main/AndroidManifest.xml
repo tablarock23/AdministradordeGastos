@@ -3,7 +3,7 @@
     package="com.expensemanager.app">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android:permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
@@ -38,11 +38,23 @@
             android:name=".SettingsActivity"
             android:exported="false" />
 
+        <!-- Receiver para notificaciones programadas -->
         <receiver android:name=".NotificationReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="MARK_AS_PAID" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Receiver para detectar encendido del dispositivo -->
+        <receiver android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
 

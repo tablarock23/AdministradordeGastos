@@ -44,17 +44,37 @@
                 android:id="@+id/loanNameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Ej: Préstamo Personal BCP, Tarjeta CMR"
+                android:hint="Ej: Préstamo Personal, Tarjeta de Crédito"
                 android:background="@drawable/edittext_background"
                 android:padding="12dp"
                 android:layout_marginBottom="20dp"
                 android:textSize="16sp" />
 
-            <!-- Monto total -->
+            <!-- Capital -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Monto total del préstamo:"
+                android:text="¿Cuánto te prestaron?"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/capitalAmountEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ej: 250"
+                android:inputType="numberDecimal"
+                android:background="@drawable/edittext_background"
+                android:padding="12dp"
+                android:layout_marginBottom="20dp"
+                android:textSize="16sp" />
+
+            <!-- Total a pagar -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¿Cuánto pagarás en total?"
                 android:textSize="16sp"
                 android:textColor="#333333"
                 android:layout_marginBottom="8dp" />
@@ -63,18 +83,47 @@
                 android:id="@+id/totalAmountEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="0.00"
+                android:hint="Ej: 450"
                 android:inputType="numberDecimal"
                 android:background="@drawable/edittext_background"
                 android:padding="12dp"
                 android:layout_marginBottom="20dp"
                 android:textSize="16sp" />
 
+            <!-- Resumen -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFF3E0"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:id="@+id/interestInfoTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Interés: --"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#E65100"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/installmentAmountTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cuota: --"
+                    android:textSize="14sp"
+                    android:textColor="#F57C00" />
+
+            </LinearLayout>
+
             <!-- Número de cuotas -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Número de cuotas:"
+                android:text="¿En cuántas cuotas?"
                 android:textSize="16sp"
                 android:textColor="#333333"
                 android:layout_marginBottom="8dp" />
@@ -83,18 +132,64 @@
                 android:id="@+id/installmentsEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="12"
+                android:hint="Ej: 12"
                 android:inputType="number"
                 android:background="@drawable/edittext_background"
                 android:padding="12dp"
                 android:layout_marginBottom="20dp"
                 android:textSize="16sp" />
 
+            <!-- Frecuencia de pago -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¿Cada cuánto pagas?"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/paymentFrequencySpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/spinner_background"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp" />
+
+            <!-- Días personalizados -->
+            <LinearLayout
+                android:id="@+id/customDaysLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Especifica cada cuántos días:"
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/customDaysEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Ej: 10"
+                    android:inputType="number"
+                    android:background="@drawable/edittext_background"
+                    android:padding="12dp"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
             <!-- Fecha de inicio -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fecha de la primera cuota:"
+                android:text="📅 Fecha de la primera cuota:"
                 android:textSize="16sp"
                 android:textColor="#333333"
                 android:layout_marginBottom="8dp" />
@@ -112,11 +207,33 @@
                 android:textSize="16sp"
                 android:drawableEnd="@android:drawable/ic_menu_my_calendar" />
 
+            <!-- Hora de vencimiento -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🕐 Hora exacta de vencimiento:"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/startTimeEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Seleccionar hora (ej: 15:30)"
+                android:focusable="false"
+                android:clickable="true"
+                android:background="@drawable/edittext_background"
+                android:padding="12dp"
+                android:layout_marginBottom="20dp"
+                android:textSize="16sp"
+                android:drawableEnd="@android:drawable/ic_menu_recent_history" />
+
             <!-- Días de recordatorio -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Recordar con cuántos días de anticipación:"
+                android:text="⏰ Recordar con anticipación (días):"
                 android:textSize="16sp"
                 android:textColor="#333333"
                 android:layout_marginBottom="8dp" />
@@ -125,12 +242,41 @@
                 android:id="@+id/reminderDaysEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="3"
+                android:hint="3 días"
                 android:inputType="number"
                 android:background="@drawable/edittext_background"
                 android:padding="12dp"
-                android:layout_marginBottom="30dp"
+                android:layout_marginBottom="20dp"
                 android:textSize="16sp" />
+
+            <!-- Intervalo de notificaciones -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔔 Notificar cada cuántas horas:"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/notificationIntervalEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="2 horas"
+                android:inputType="number"
+                android:background="@drawable/edittext_background"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📱 Recibirás notificaciones insistentes con sonido, vibración y luz"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:textStyle="italic"
+                android:layout_marginBottom="30dp" />
 
             <!-- Botones -->
             <LinearLayout

@@ -7,33 +7,38 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "ExpenseManager.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 4;
 
     // Tabla de fuentes de saldo
     public static final String TABLE_BALANCE_SOURCES = "balance_sources";
     public static final String COLUMN_BS_ID = "id";
     public static final String COLUMN_BS_NAME = "name";
-    public static final String COLUMN_BS_TYPE = "type"; // YAPE, CUENTA_BANCARIA, TARJETA_CREDITO, EFECTIVO
+    public static final String COLUMN_BS_TYPE = "type";
     public static final String COLUMN_BS_BALANCE = "balance";
 
-    // Tabla de gastos recurrentes (streaming, etc)
+    // Tabla de gastos recurrentes
     public static final String TABLE_RECURRING_EXPENSES = "recurring_expenses";
     public static final String COLUMN_RE_ID = "id";
     public static final String COLUMN_RE_NAME = "name";
     public static final String COLUMN_RE_AMOUNT = "amount";
-    public static final String COLUMN_RE_TYPE = "type"; // STREAMING, OTROS
+    public static final String COLUMN_RE_TYPE = "type";
     public static final String COLUMN_RE_DUE_DATE = "due_date";
     public static final String COLUMN_RE_REMINDER_DAYS = "reminder_days";
+    public static final String COLUMN_RE_NOTIFICATION_INTERVAL_HOURS = "notification_interval_hours"; // NUEVO
     public static final String COLUMN_RE_IS_ACTIVE = "is_active";
 
     // Tabla de préstamos
     public static final String TABLE_LOANS = "loans";
     public static final String COLUMN_LOAN_ID = "id";
     public static final String COLUMN_LOAN_NAME = "name";
+    public static final String COLUMN_LOAN_CAPITAL = "capital";
+    public static final String COLUMN_LOAN_INTEREST_RATE = "interest_rate";
     public static final String COLUMN_LOAN_TOTAL_AMOUNT = "total_amount";
     public static final String COLUMN_LOAN_INSTALLMENTS = "installments";
     public static final String COLUMN_LOAN_INSTALLMENT_AMOUNT = "installment_amount";
     public static final String COLUMN_LOAN_START_DATE = "start_date";
+    public static final String COLUMN_LOAN_PAYMENT_FREQUENCY = "payment_frequency";
+    public static final String COLUMN_LOAN_PAYMENT_INTERVAL_DAYS = "payment_interval_days";
 
     // Tabla de cuotas de préstamos
     public static final String TABLE_LOAN_INSTALLMENTS = "loan_installments";
@@ -43,7 +48,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_LI_AMOUNT = "amount";
     public static final String COLUMN_LI_DUE_DATE = "due_date";
     public static final String COLUMN_LI_IS_PAID = "is_paid";
+    public static final String COLUMN_LI_PAID_DATE = "paid_date";
     public static final String COLUMN_LI_REMINDER_DAYS = "reminder_days";
+    public static final String COLUMN_LI_NOTIFICATION_INTERVAL_HOURS = "notification_interval_hours"; // NUEVO
 
     // Tabla de gastos diversos
     public static final String TABLE_OTHER_EXPENSES = "other_expenses";
@@ -69,7 +76,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + ")";
         db.execSQL(createBalanceSourcesTable);
 
-        // Crear tabla de gastos recurrentes
+        // Crear tabla de gastos recurrentes (con intervalo de notificaciones)
         String createRecurringExpensesTable = "CREATE TABLE " + TABLE_RECURRING_EXPENSES + "("
                 + COLUMN_RE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_RE_NAME + " TEXT NOT NULL,"
@@ -77,6 +84,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_RE_TYPE + " TEXT NOT NULL,"
                 + COLUMN_RE_DUE_DATE + " INTEGER NOT NULL,"
                 + COLUMN_RE_REMINDER_DAYS + " INTEGER DEFAULT 3,"
+                + COLUMN_RE_NOTIFICATION_INTERVAL_HOURS + " INTEGER DEFAULT 2,"
                 + COLUMN_RE_IS_ACTIVE + " INTEGER DEFAULT 1"
                 + ")";
         db.execSQL(createRecurringExpensesTable);
@@ -85,14 +93,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String createLoansTable = "CREATE TABLE " + TABLE_LOANS + "("
                 + COLUMN_LOAN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_LOAN_NAME + " TEXT NOT NULL,"
+                + COLUMN_LOAN_CAPITAL + " REAL NOT NULL,"
+                + COLUMN_LOAN_INTEREST_RATE + " REAL NOT NULL,"
                 + COLUMN_LOAN_TOTAL_AMOUNT + " REAL NOT NULL,"
                 + COLUMN_LOAN_INSTALLMENTS + " INTEGER NOT NULL,"
                 + COLUMN_LOAN_INSTALLMENT_AMOUNT + " REAL NOT NULL,"
-                + COLUMN_LOAN_START_DATE + " INTEGER NOT NULL"
+                + COLUMN_LOAN_START_DATE + " INTEGER NOT NULL,"
+                + COLUMN_LOAN_PAYMENT_FREQUENCY + " TEXT DEFAULT 'MENSUAL',"
+                + COLUMN_LOAN_PAYMENT_INTERVAL_DAYS + " INTEGER DEFAULT 30"
                 + ")";
         db.execSQL(createLoansTable);
 
-        // Crear tabla de cuotas de préstamos
+        // Crear tabla de cuotas de préstamos (con intervalo de notificaciones)
         String createLoanInstallmentsTable = "CREATE TABLE " + TABLE_LOAN_INSTALLMENTS + "("
                 + COLUMN_LI_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_LI_LOAN_ID + " INTEGER NOT NULL,"
@@ -100,7 +112,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_LI_AMOUNT + " REAL NOT NULL,"
                 + COLUMN_LI_DUE_DATE + " INTEGER NOT NULL,"
                 + COLUMN_LI_IS_PAID + " INTEGER DEFAULT 0,"
+                + COLUMN_LI_PAID_DATE + " INTEGER DEFAULT 0,"
                 + COLUMN_LI_REMINDER_DAYS + " INTEGER DEFAULT 3,"
+                + COLUMN_LI_NOTIFICATION_INTERVAL_HOURS + " INTEGER DEFAULT 2,"
                 + "FOREIGN KEY(" + COLUMN_LI_LOAN_ID + ") REFERENCES " + TABLE_LOANS + "(" + COLUMN_LOAN_ID + ")"
                 + ")";
         db.execSQL(createLoanInstallmentsTable);
@@ -120,11 +134,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BALANCE_SOURCES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECURRING_EXPENSES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOANS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOAN_INSTALLMENTS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHER_EXPENSES);
-        onCreate(db);
+        if (oldVersion < 2) {
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_LOANS + " ADD COLUMN " + COLUMN_LOAN_CAPITAL + " REAL DEFAULT 0");
+                db.execSQL("ALTER TABLE " + TABLE_LOANS + " ADD COLUMN " + COLUMN_LOAN_INTEREST_RATE + " REAL DEFAULT 0");
+            } catch (Exception e) {
+                // Columnas ya existen
+            }
+        }
+
+        if (oldVersion < 3) {
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_LOANS + " ADD COLUMN " + COLUMN_LOAN_PAYMENT_FREQUENCY + " TEXT DEFAULT 'MENSUAL'");
+                db.execSQL("ALTER TABLE " + TABLE_LOANS + " ADD COLUMN " + COLUMN_LOAN_PAYMENT_INTERVAL_DAYS + " INTEGER DEFAULT 30");
+                db.execSQL("ALTER TABLE " + TABLE_LOAN_INSTALLMENTS + " ADD COLUMN " + COLUMN_LI_PAID_DATE + " INTEGER DEFAULT 0");
+            } catch (Exception e) {
+                // Columnas ya existen
+            }
+        }
+
+        if (oldVersion < 4) {
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_RECURRING_EXPENSES + " ADD COLUMN " + COLUMN_RE_NOTIFICATION_INTERVAL_HOURS + " INTEGER DEFAULT 2");
+                db.execSQL("ALTER TABLE " + TABLE_LOAN_INSTALLMENTS + " ADD COLUMN " + COLUMN_LI_NOTIFICATION_INTERVAL_HOURS + " INTEGER DEFAULT 2");
+            } catch (Exception e) {
+                // Columnas ya existen
+            }
+        }
     }
 }
